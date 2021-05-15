@@ -1,0 +1,7 @@
+{
+    "pack": {
+        "description": "forgeextendedasm resources",
+        "pack_format": 5,
+        "_comment": "An easy way to do asm in forge!"
+    }
+}

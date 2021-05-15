@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[32,)"
+license="CC0 1.0 Universal"
+issueTrackerURL="https://github.com/ludocrypt/Forge-Extended-ASM/issues"
+[[mods]]
+modId="forgeextendedasm"
+version="${file.jarVersion}"
+displayName="Forge Extended ASM"
+displayURL="https://discord.gg/bbhS2vy"
+logoFile="mm.png"
+credits="Chocohead, LudoCrypt"
+authors="Chocohead, LudoCrypt"
+description='''
+Fabric ASM but for forge! Adding more easily accessible asm features.
+'''
+
+[[dependencies.forgeextendedasm]]
+modId="forge"
+mandatory=true
+versionRange="[32,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.forgeextendedasm]]
+modId="minecraft"
+mandatory = true
+versionRange = "[1.0.0,1.17)"
+ordering = "NONE"
+side="BOTH"
