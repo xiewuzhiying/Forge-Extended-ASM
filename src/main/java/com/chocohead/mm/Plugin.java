@@ -23,13 +23,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.Maps;
+
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
@@ -333,7 +338,18 @@ public final class Plugin implements IMixinConfigPlugin {
 	@Override
 	public List<String> getMixins() {
 		//System.out.println("Have " + mixins);
-		MM.MM_REGISTRY.forEach(Runnable::run);
+		// get the names of all classes annotated with the plugin annotation
+		ModList.get().getAllScanData().stream().flatMap(modData -> modData.getAnnotations().stream()).filter(annotationData -> Objects.equals(annotationData.getAnnotationType(), Type.getType(Asm.class))).map(AnnotationData::getMemberName).flatMap((className) -> {
+			try {
+				return Stream.of(Class.forName(className).asSubclass(Runnable.class).newInstance());
+			} catch (Exception e) {
+				MM.LOGGER.error("Failed to load {} Plugin: {}", className, e);
+				return Stream.empty();
+			}
+		}).forEach((runnable) -> {
+			runnable.run();
+		});
+
 		//System.out.println("Now have " + mixins);
 		if (!enumStructParents.isEmpty()) {
 			for (Entry<String, String> entry : enumStructParents.entrySet()) {

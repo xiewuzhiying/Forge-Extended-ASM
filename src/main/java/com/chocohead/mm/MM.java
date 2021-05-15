@@ -7,9 +7,6 @@
  */
 package com.chocohead.mm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,8 +15,6 @@ import net.minecraftforge.fml.common.Mod;
 @Mod("forgeextendedasm")
 public class MM {
 	public static final Logger LOGGER = LogManager.getLogger();
-
-	public static final List<Runnable> MM_REGISTRY = new ArrayList<Runnable>();
 
 	public MM() {
 		LOGGER.info("Definitely not up to no good");
