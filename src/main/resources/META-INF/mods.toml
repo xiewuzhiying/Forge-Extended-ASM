@@ -11,7 +11,7 @@ logoFile="mm.png"
 credits="Chocohead, LudoCrypt"
 authors="Chocohead, LudoCrypt"
 description='''
-Fabric ASM but for forge! Adding more easily accessible asm features.
+Dont blame me if it doesnt work !
 '''
 
 [[dependencies.forgeextendedasm]]

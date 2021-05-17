@@ -49,6 +49,16 @@ public final class CasualStreamHandler extends URLStreamHandler {
 		public Permission getPermission() {
 			return null;
 		}
+		
+		@Override
+		public int getContentLength() {
+			// This is here because -1 isnt viable
+			int og = super.getContentLength();
+			if (og == -1) {
+				return 32767;
+			}
+			return og;
+		}
 	}
 
 	static BiConsumer<String, byte[]> dumper;

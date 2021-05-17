@@ -54,7 +54,10 @@ import com.chocohead.mm.api.EnumAdder;
 import com.chocohead.mm.api.EnumAdder.EnumAddition;
 import com.google.common.collect.Maps;
 
-import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.LoadingModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModFile;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
 
 public final class Plugin implements IMixinConfigPlugin {
@@ -66,15 +69,15 @@ public final class Plugin implements IMixinConfigPlugin {
 		ClassLoader loader = Plugin.class.getClassLoader();
 		Field classLoaderField = null;
 		for (Field field : loader.getClass().getDeclaredFields()) {
-			if (classLoaderField == null && field.getName().contains("ClassLoader")) {
+			if (classLoaderField == null && field.getType().getSuperclass() == URLClassLoader.class) {
+				field.setAccessible(true);
 				classLoaderField = field;
+				break;
 			}
 		}
 		if (classLoaderField == null)
 			throw new IllegalStateException("Couldn't find field in " + loader);
 		try {
-			classLoaderField.setAccessible(true);
-
 			URLClassLoader classLoader = (URLClassLoader) classLoaderField.get(loader);
 			Method addUrlMethod = null;
 
@@ -110,11 +113,14 @@ public final class Plugin implements IMixinConfigPlugin {
 			Enumeration<URL> urls = MM.class.getClassLoader().getResources("silky.at");
 			while (urls.hasMoreElements()) {
 				URL url = urls.nextElement();
+				//System.out.println("Found AT: " + url);
+
 				try (Scanner scanner = new Scanner(url.openStream())) {
+					//System.out.println("Made scanner");
 					while (scanner.hasNextLine()) {
 						String line = scanner.nextLine().trim();
-						if (line.isEmpty() || line.startsWith("#"))
-							continue;
+						//System.out.println("On line: \"" + line + '\"');
+						if (line.isEmpty() || line.startsWith("#")) continue;
 
 						int split = line.indexOf(' ');
 						String className, method;
@@ -128,13 +134,21 @@ public final class Plugin implements IMixinConfigPlugin {
 
 						transforms.computeIfAbsent(className, k -> new HashSet<>()).add(method);
 					}
+					//System.out.println("Finished with scanner");
 				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading access transformers", e);
 		}
 
+		//transforms.computeIfAbsent("net.minecraft.item.ItemStack", k -> new HashSet<>()).add("<*>");
+		//this.transforms.add("net.minecraft.class_1234");
+		/*transforms.computeIfAbsent("net.minecraft.client.MinecraftClient", k -> new HashSet<>()).add("<*>");
+		transforms.computeIfAbsent("net.minecraft.entity.passive.SheepEntity", k -> new HashSet<>()).add("<*>");
+		transforms.computeIfAbsent("net.minecraft.client.gui.ingame.CreativePlayerInventoryScreen$CreativeSlot", k -> new HashSet<>()).add("<*>");*/
+
 		for (Entry<String, Set<String>> entry : transforms.entrySet()) {
+			//System.out.println("Adding transformation " + entry.getKey() + " => " + entry.getValue());
 			ClassTinkerers.addTransformation(entry.getKey(), makeAT(entry.getValue()));
 		}
 
@@ -145,15 +159,16 @@ public final class Plugin implements IMixinConfigPlugin {
 			private int massPool = 1;
 
 			private void generate(String name, Collection<? extends String> targets) {
+				//System.out.println("Generating " + mixinPackage + name + " with targets " + targets);
 				assert name.indexOf('.') < 0;
 				classGenerators.put('/' + mixinPackage + name + ".class", makeMixinBlob(mixinPackage + name, targets));
+				//ClassTinkerers.define(mixinPackage + name, makeMixinBlob(mixinPackage + name, targets)); ^^^
 				mixins.add(name.replace('/', '.'));
 			}
 
 			@Override
 			public Set<Consumer<ClassNode>> put(String key, Set<Consumer<ClassNode>> value) {
-				if (!skipGen)
-					generate(key, Collections.singleton(key));
+				if (!skipGen) generate(key, Collections.singleton(key));
 				return super.put(key, value);
 			}
 
@@ -171,14 +186,14 @@ public final class Plugin implements IMixinConfigPlugin {
 
 			@Override
 			public Consumer<ClassNode> put(String key, Consumer<ClassNode> value) {
-				if (!skipGen && !classModifiers.containsKey(key))
-					classModifiers.put(key, new HashSet<>());
+				if (!skipGen && !classModifiers.containsKey(key)) classModifiers.put(key, new HashSet<>());
 				return super.put(key, value);
 			}
 
 			@Override
 			public void putAll(Map<? extends String, ? extends Consumer<ClassNode>> m) {
 				skipGen = true;
+				//Avoid squishing anything if it's already there, otherwise make an empty set
 				classModifiers.putAll(Maps.asMap(m.keySet(), name -> classModifiers.getOrDefault(name, new HashSet<>())));
 				super.putAll(m);
 				skipGen = false;
@@ -207,16 +222,14 @@ public final class Plugin implements IMixinConfigPlugin {
 
 			@Override
 			public boolean add(EnumAdder builder) {
-				if (!skipCheck)
-					addTransformations(builder);
+				if (!skipCheck) addTransformations(builder);
 				return super.add(builder);
 			}
 
 			@Override
 			public boolean addAll(Collection<? extends EnumAdder> builders) {
 				skipCheck = true;
-				for (EnumAdder builder : builders)
-					addTransformations(builder);
+				for (EnumAdder builder : builders) addTransformations(builder);
 				boolean out = super.addAll(builders);
 				skipCheck = false;
 				return out;
@@ -241,15 +254,17 @@ public final class Plugin implements IMixinConfigPlugin {
 
 		ClassTinkerers.addURL(CasualStreamHandler.create(classGenerators));
 		this.classModifiers = classModifiers;
+
+		//System.out.println("Loaded initially with: " + classModifiers);
+
 		Object transformer = MixinEnvironment.getCurrentEnvironment().getActiveTransformer();
-		if (transformer == null)
-			throw new IllegalStateException("Not running with a transformer?");
+		if (transformer == null) throw new IllegalStateException("Not running with a transformer?");
 
 		Extensions extensions = null;
 		try {
 			for (Field f : transformer.getClass().getDeclaredFields()) {
 				if (f.getType() == Extensions.class) {
-					f.setAccessible(true); // Knock knock, we need this
+					f.setAccessible(true); //Knock knock, we need this
 					extensions = (Extensions) f.get(transformer);
 					break;
 				}
@@ -266,7 +281,7 @@ public final class Plugin implements IMixinConfigPlugin {
 		extensions.add(new Extension(mixinPackage, classReplacers));
 		ExtensionClassExporter exporter = extensions.getExtension(ExtensionClassExporter.class);
 		CasualStreamHandler.dumper = (name, bytes) -> {
-			ClassNode node = new ClassNode();
+			ClassNode node = new ClassNode(); //Read the bytes in as per TreeTransformer#readClass(byte[])
 			new ClassReader(bytes).accept(node, ClassReader.EXPAND_FRAMES);
 			exporter.export(MixinEnvironment.getCurrentEnvironment(), name, false, node);
 		};
@@ -278,8 +293,7 @@ public final class Plugin implements IMixinConfigPlugin {
 
 		AnnotationVisitor mixinAnnotation = cw.visitAnnotation("Lorg/spongepowered/asm/mixin/Mixin;", false);
 		AnnotationVisitor targetAnnotation = mixinAnnotation.visitArray("value");
-		for (String target : targets)
-			targetAnnotation.visit(null, Type.getType('L' + target + ';'));
+		for (String target : targets) targetAnnotation.visit(null, Type.getType('L' + target + ';'));
 		targetAnnotation.visitEnd();
 		mixinAnnotation.visitEnd();
 
@@ -289,6 +303,7 @@ public final class Plugin implements IMixinConfigPlugin {
 
 	private static Consumer<ClassNode> makeAT(Set<String> transforms) {
 		return node -> {
+			//System.out.println("ATing " + node.name + " with " + transforms);
 			if (transforms.remove("<*>")) {
 				node.access = flipBits(node.access);
 
@@ -308,7 +323,10 @@ public final class Plugin implements IMixinConfigPlugin {
 					for (AbstractInsnNode insnNode : method.instructions) {
 						if (insnNode.getOpcode() == Opcodes.INVOKESPECIAL) {
 							MethodInsnNode methodInsnNode = (MethodInsnNode) insnNode;
+
 							if (!methodInsnNode.name.equals("<init>") && methodInsnNode.owner.equals(node.name) && transforms.contains(methodInsnNode.name + methodInsnNode.desc)) {
+								// Private methods are normally invoked with INVOKESPECIAL
+								// We want to make sure that any private -> public methods are invoked with INVOKEVIRTUAL, so that the JVM correctly handles potential inheritance
 								methodInsnNode.setOpcode(Opcodes.INVOKEVIRTUAL);
 							}
 						}
@@ -319,7 +337,6 @@ public final class Plugin implements IMixinConfigPlugin {
 	}
 
 	private static final int ACCESSES = ~(Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED | Opcodes.ACC_PRIVATE);
-
 	private static int flipBits(int access) {
 		access &= ACCESSES;
 		access |= Opcodes.ACC_PUBLIC;
@@ -329,14 +346,15 @@ public final class Plugin implements IMixinConfigPlugin {
 
 	@Override
 	public String getRefMapperConfig() {
-		return null;
+		return null; //We can rely on the default
 	}
 
 	@Override
 	public List<String> getMixins() {
-		ModList.get().getAllScanData().stream().flatMap(modData -> modData.getAnnotations().stream()).filter(annotationData -> Objects.equals(annotationData.getAnnotationType(), Type.getType(Asm.class))).map(AnnotationData::getMemberName).flatMap((className) -> {
+		//System.out.println("Have " + mixins);
+		LoadingModList.get().getMods().stream().map(ModInfo::getOwningFile).filter(Objects::nonNull).map(ModFileInfo::getFile).distinct().map(ModFile::getScanResult).collect(Collectors.toList()).stream().flatMap(modData -> modData.getAnnotations().stream()).filter(annotationData -> Objects.equals(annotationData.getAnnotationType(), Type.getType(Asm.class))).map(AnnotationData::getMemberName).flatMap((className) -> {
 			try {
-				return Stream.of(Class.forName(className).asSubclass(Runnable.class).newInstance());
+				return Stream.of((Runnable) Class.forName(className).asSubclass(Runnable.class).getConstructor(new Class[0]).newInstance(new Object[0]));
 			} catch (Exception e) {
 				MM.LOGGER.error("Failed to load {} Plugin: {}", className, e);
 				return Stream.empty();
@@ -344,6 +362,7 @@ public final class Plugin implements IMixinConfigPlugin {
 		}).forEach((runnable) -> {
 			runnable.run();
 		});
+		//System.out.println("Now have " + mixins);
 		if (!enumStructParents.isEmpty()) {
 			for (Entry<String, String> entry : enumStructParents.entrySet()) {
 				ClassTinkerers.addReplacement(entry.getKey(), EnumSubclasser.makeStructFixer(entry.getKey(), entry.getValue()));
@@ -358,23 +377,23 @@ public final class Plugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		return true;
+		return true; //Sure
 	}
 
 	@Override
 	public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+		//System.out.println("Pre-applying " + targetClassName + " via " + mixinClassName);
+
 		Set<Consumer<ClassNode>> transformations = classModifiers.get(targetClassName.replace('.', '/'));
 		if (transformations != null) {
 			for (Consumer<ClassNode> transformer : transformations) {
 				transformer.accept(targetClass);
 			}
 		}
-		System.out.println("Pre " + mixinClassName);
 	}
 
 	@Override
 	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 		targetClass.interfaces.remove(mixinClassName.replace('.', '/'));
-		System.out.println("Post " + mixinClassName);
 	}
 }
