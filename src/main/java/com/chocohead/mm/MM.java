@@ -12,8 +12,4 @@ import org.apache.logging.log4j.Logger;
 
 public class MM {
 	public static final Logger LOGGER = LogManager.getLogger();
-
-	public MM() {
-		LOGGER.info("MM is loading as regular mod. If you are in a development env do not worry.");
-	}
 }
