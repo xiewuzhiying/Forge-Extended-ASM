@@ -10,13 +10,10 @@ package com.chocohead.mm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraftforge.fml.common.Mod;
-
-@Mod("forgeextendedasm")
 public class MM {
 	public static final Logger LOGGER = LogManager.getLogger();
 
 	public MM() {
-		LOGGER.info("Definitely not up to no good");
+		LOGGER.info("MM is loading as regular mod. If you are in a development env do not worry.");
 	}
 }
