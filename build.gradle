@@ -127,9 +127,10 @@ afterEvaluate {
 // Creates a Maven publication called "release".
             release(MavenPublication) {
                 //from components.release
-                groupId = 'com.github.BoonelDanForever'
-                artifactId = 'Forge-Extended-ASM'
-                version = '3.2.3'
+                artifact jar
+                //groupId = 'com.github.BoonelDanForever'
+                //artifactId = 'Forge-Extended-ASM'
+                //version = '3.2.3'
             }
         }
     }
