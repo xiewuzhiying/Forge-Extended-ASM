@@ -3,6 +3,7 @@ buildscript {
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
+        maven { url = "https://jitpack.io" }
         maven { url = 'https://dist.creeper.host/Sponge/maven' }
         maven { url = 'https://repo.spongepowered.org/maven/' }
     }
@@ -15,7 +16,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '3.2.2'
+version = '3.2.3'
 group = 'com.chocohead.mm' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'mm'
 
@@ -107,15 +108,29 @@ jar {
 
 jar.finalizedBy('reobfJar')
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            artifact jar
+//        }
+//    }
+//    repositories {
+//        maven {
+//            url "file:///${project.projectDir}/mcmodsrepo"
+//        }
+//    }
+//}
+
+afterEvaluate {
+    publishing {
+        publications {
+// Creates a Maven publication called "release".
+            release(MavenPublication) {
+                //from components.release
+                groupId = 'com.github.BoonelDanForever'
+                artifactId = 'Forge-Extended-ASM'
+                version = '3.2.3'
+            }
         }
     }
 }
