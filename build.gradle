@@ -19,7 +19,7 @@ version = '3.2.0'
 group = 'com.chocohead.mm' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'mm'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '17'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaVersion.VERSION_17
 //sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
