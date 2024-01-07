@@ -16,7 +16,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '3.2.3'
+version = '3.2.4'
 group = 'com.chocohead.mm' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'mm'
 
