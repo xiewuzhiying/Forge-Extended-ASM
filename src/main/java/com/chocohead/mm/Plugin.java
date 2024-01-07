@@ -352,7 +352,7 @@ public final class Plugin implements IMixinConfigPlugin {
 	@Override
 	public List<String> getMixins() {
 		//System.out.println("Have " + mixins);
-		LoadingModList.get().getMods().stream().map(ModInfo::getOwningFile).filter(Objects::nonNull).map(ModFileInfo::getFile).distinct().map(ModFile::getScanResult).collect(Collectors.toList()).stream().flatMap(modData -> modData.getAnnotations().stream()).filter(annotationData -> Objects.equals(annotationData.getAnnotationType(), Type.getType(Asm.class))).map(AnnotationData::getMemberName).flatMap((className) -> {
+		LoadingModList.get().getMods().stream().map(ModInfo::getOwningFile).filter(Objects::nonNull).map(ModFileInfo::getFile).distinct().map(ModFile::getScanResult).collect(Collectors.toList()).stream().flatMap(modData -> modData.getAnnotations().stream()).filter(annotationData -> Objects.equals(annotationData.annotationType(), Type.getType(Asm.class))).map(AnnotationData::memberName).flatMap((className) -> {
 			try {
 				return Stream.of((Runnable) Class.forName(className).asSubclass(Runnable.class).getConstructor(new Class[0]).newInstance(new Object[0]));
 			} catch (Exception e) {
