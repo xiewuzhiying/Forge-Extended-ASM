@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.chocohead.mm;
+package com.chocohead.forgeextendedasm;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,9 +33,9 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import com.chocohead.mm.api.ClassTinkerers;
-import com.chocohead.mm.api.EnumAdder;
-import com.chocohead.mm.api.EnumAdder.EnumAddition;
+import com.chocohead.forgeextendedasm.api.ClassTinkerers;
+import com.chocohead.forgeextendedasm.api.EnumAdder;
+import com.chocohead.forgeextendedasm.api.EnumAdder.EnumAddition;
 
 public final class EnumExtender {
 	public static final Map<String, Object[]> POOL = new HashMap<>();
@@ -139,7 +139,7 @@ public final class EnumExtender {
 
 				LabelNode stuffStart;
 				if (builder.hasParameters()) {
-					method.add(new FieldInsnNode(Opcodes.GETSTATIC, "com/chocohead/mm/EnumExtender", "POOL", "Ljava/util/Map;"));
+					method.add(new FieldInsnNode(Opcodes.GETSTATIC, "com/chocohead/forgeextendedasm/EnumExtender", "POOL", "Ljava/util/Map;"));
 					POOL.put(poolKey, addition.getParameters());
 					method.add(new LdcInsnNode(poolKey));
 					method.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true));

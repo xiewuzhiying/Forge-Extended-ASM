@@ -1,4 +1,4 @@
-package com.chocohead.mm;
+package com.chocohead.forgeextendedasm;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 

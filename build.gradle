@@ -16,9 +16,9 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '3.2.4'
-group = 'com.chocohead.mm' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'mm'
+version = '3.2.5'
+group = 'com.chocohead.forgeextendedasm' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'forgeextendedasm'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaVersion.VERSION_17
 //sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -31,12 +31,12 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            arg "-mixin.config=mixins.mm.json"
+            arg "-mixin.config=mixins.forgeextendedasm.json"
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
 
             mods {
-                mm {
+                forgeextendedasm {
                     source sourceSets.main
                 }
             }
@@ -44,11 +44,11 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-            arg "-mixin.config=mixins.mm.json"
+            arg "-mixin.config=mixins.forgeextendedasm.json"
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
             mods {
-                mm {
+                forgeextendedasm {
                     source sourceSets.main
                 }
             }
@@ -58,9 +58,9 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'mm', '--all', '--output', file('src/generated/resources/')
+            args '--mod', 'forgeextendedasm', '--all', '--output', file('src/generated/resources/')
             mods {
-                mm {
+                forgeextendedasm {
                     source sourceSets.main
                 }
             }
@@ -86,12 +86,12 @@ dependencies {
 jar {
     manifest {
         attributes([
-                "Specification-Title": "mm",
-                "Specification-Vendor": "mm",
+                "Specification-Title": "forgeextendedasm",
+                "Specification-Vendor": "forgeextendedasm",
                 "Specification-Version": "1", // We are version 1 of ourselves
                 "Implementation-Title": project.name,
                 "Implementation-Version": "${version}",
-                "Implementation-Vendor" :"mm",
+                "Implementation-Vendor" :"forgeextendedasm",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
@@ -101,7 +101,7 @@ jar {
     manifest {
         attributes([
                 // Existing properties here
-                "MixinConfigs": "mixins.mm.json"
+                "MixinConfigs": "mixins.forgeextendedasm.json"
         ])
     }
 }
@@ -139,5 +139,5 @@ afterEvaluate {
 apply plugin: 'org.spongepowered.mixin'
 
 mixin {
-    add sourceSets.main, "mixins.mm.refmap.json"
+    add sourceSets.main, "mixins.forgeextendedasm.refmap.json"
 }

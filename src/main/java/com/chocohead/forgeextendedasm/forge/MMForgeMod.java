@@ -1,6 +1,6 @@
-package com.chocohead.mm.forge;
+package com.chocohead.forgeextendedasm.forge;
 
-import com.chocohead.mm.MM;
+import com.chocohead.forgeextendedasm.MM;
 
 import net.minecraftforge.fml.common.Mod;
 

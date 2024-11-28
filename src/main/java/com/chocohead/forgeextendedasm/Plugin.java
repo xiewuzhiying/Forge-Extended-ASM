@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.chocohead.mm;
+package com.chocohead.forgeextendedasm;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -48,10 +48,10 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.ext.Extensions;
 import org.spongepowered.asm.mixin.transformer.ext.extensions.ExtensionClassExporter;
 
-import com.chocohead.mm.EnumSubclasser.StructClass;
-import com.chocohead.mm.api.ClassTinkerers;
-import com.chocohead.mm.api.EnumAdder;
-import com.chocohead.mm.api.EnumAdder.EnumAddition;
+import com.chocohead.forgeextendedasm.EnumSubclasser.StructClass;
+import com.chocohead.forgeextendedasm.api.ClassTinkerers;
+import com.chocohead.forgeextendedasm.api.EnumAdder;
+import com.chocohead.forgeextendedasm.api.EnumAdder.EnumAddition;
 import com.google.common.collect.Maps;
 
 import net.minecraftforge.fml.loading.LoadingModList;

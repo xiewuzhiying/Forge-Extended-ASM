@@ -2,10 +2,10 @@
 	"required": true,
 	"package": "com.chocohead.gen.mixin.",
 	"compatibilityLevel": "JAVA_8",
-	"plugin": "com.chocohead.mm.Plugin",
+	"plugin": "com.chocohead.forgeextendedasm.Plugin",
 	"mixins": [
 	],
-	"refmap": "mixins.mm.refmap.json",
+	"refmap": "mixins.forgeextendedasm.refmap.json",
 	"injectors": {
 		"defaultRequire": 1
 	}
